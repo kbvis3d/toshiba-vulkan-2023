@@ -34,3 +34,14 @@
 /VulkanTutorial/15_hello_triangle/*.filters
 /VulkanTutorial/26_texture_mapping/*.filters
 /VulkanTutorial/26_texture_mapping/*.user
+/VulkanTutorial/27_full_screen/x64/Debug/*.idb
+/VulkanTutorial/27_full_screen/x64/Debug/*.pdb
+/VulkanTutorial/x64/Debug/*.exe
+/VulkanTutorial/x64/Debug/*.pdb
+/VulkanTutorial/27_full_screen/x64/Debug
+/VulkanTutorial/.vs/VulkanTutorial/v17/ipch/AutoPCH/1c6cd89aa8546745/*.ipch
+/VulkanTutorial/.vs/VulkanTutorial/v17/ipch/AutoPCH/29263861058322c1/*.ipch
+/VulkanTutorial/.vs/VulkanTutorial/v17/ipch/AutoPCH/aec8ffd7b6d43037/*.ipch
+/VulkanTutorial/15_hello_triangle/*.user
+/VulkanTutorial/27_full_screen/*.filters
+/VulkanTutorial/27_full_screen/*.user
