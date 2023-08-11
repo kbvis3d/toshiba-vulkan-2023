@@ -46,3 +46,17 @@
 /VulkanTutorial/27_full_screen/*.filters
 /VulkanTutorial/27_full_screen/*.user
 /VulkanTutorial/.vs/VulkanTutorial/v17/ipch/AutoPCH/863aab734e7e0b63/*.ipch
+/CUDA/toshiba-simpleVulkan/.vs/simpleVulkan_vs2022/v17/*.suo
+/CUDA/toshiba-simpleVulkan/.vs/simpleVulkan_vs2022/v17
+/CUDA/toshiba-simpleVulkan/.vscode
+/CUDA/toshiba-simpleVulkan/x64/Debug
+/CUDA/toshiba-vulkanImageCUDA/.vs/vulkanImageCUDA_vs2022/v17
+/CUDA/toshiba-vulkanImageCUDA/.vscode
+/CUDA/toshiba-vulkanImageCUDA/x64/Debug
+/VulkanTutorial/27_depth_buffering/*.filters
+/VulkanTutorial/27_depth_buffering/*.user
+/VulkanTutorial/27_depth_buffering/x64/Debug/27_depth.d997c8f2.tlog
+/VulkanTutorial/27_depth_buffering/x64/Debug
+/CUDA/toshiba-vulkanImageCUDA/*.user
+/VulkanTutorial/.vs/VulkanTutorial/v17/ipch/AutoPCH/d9471acc7bccb6d3/*.ipch
+*.user
