@@ -64,14 +64,12 @@ void SineWaveSimulation::initCudaLaunchConfig(int device) {
   m_threads = prop.warpSize;
 
   // Use the occupancy calculator and fill the gpu as best as we can
-  checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(
-      &m_blocks, sinewave, prop.warpSize, 0));
+  checkCudaErrors(cudaOccupancyMaxActiveBlocksPerMultiprocessor(&m_blocks, sinewave, prop.warpSize, 0));
   m_blocks *= prop.multiProcessorCount;
 
   // Go ahead and the clamp the blocks to the minimum needed for this
   // height/width
-  m_blocks = std::min(m_blocks,
-                      (int)((m_width * m_height + m_threads - 1) / m_threads));
+  m_blocks = std::min(m_blocks, (int)((m_width * m_height + m_threads - 1) / m_threads));
 }
 
 int SineWaveSimulation::initCuda(uint8_t *vkDeviceUUID, size_t UUID_SIZE) {
@@ -128,7 +126,6 @@ void SineWaveSimulation::initSimulation(float *heights) {
 }
 
 void SineWaveSimulation::stepSimulation(float time, cudaStream_t stream) {
-  sinewave<<<m_blocks, m_threads, 0, stream>>>(m_heightMap, m_width, m_height,
-                                               time);
+  sinewave<<<m_blocks, m_threads, 0, stream>>>(m_heightMap, m_width, m_height, time);
   getLastCudaError("Failed to launch CUDA simulation");
 }

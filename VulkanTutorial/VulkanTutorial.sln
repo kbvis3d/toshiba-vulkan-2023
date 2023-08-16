@@ -9,9 +9,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "15_hello_triangle", "15_hel
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "26_texture_mapping", "26_texture_mapping\26_texture_mapping.vcxproj", "{71FB2222-0F11-469C-BDDD-ACA1BCA6858F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "27_full_screen", "27_full_screen\27_full_screen.vcxproj", "{DCD64AD3-E1E9-4DAC-9F97-A42A0B82043F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "26_full_screen", "27_full_screen\27_full_screen.vcxproj", "{DCD64AD3-E1E9-4DAC-9F97-A42A0B82043F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "27_depth_buffering", "27_depth_buffering\27_depth_buffering.vcxproj", "{D997C8F2-8941-46AE-AA10-F089640606E9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "31_compute_shader", "31_compute_shader\31_compute_shader.vcxproj", "{30EA1C95-49D3-4CFA-902B-3A16B86291D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,6 +63,14 @@ Global
 		{D997C8F2-8941-46AE-AA10-F089640606E9}.Release|x64.Build.0 = Release|x64
 		{D997C8F2-8941-46AE-AA10-F089640606E9}.Release|x86.ActiveCfg = Release|Win32
 		{D997C8F2-8941-46AE-AA10-F089640606E9}.Release|x86.Build.0 = Release|Win32
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Debug|x64.ActiveCfg = Debug|x64
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Debug|x64.Build.0 = Debug|x64
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Debug|x86.ActiveCfg = Debug|Win32
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Debug|x86.Build.0 = Debug|Win32
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Release|x64.ActiveCfg = Release|x64
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Release|x64.Build.0 = Release|x64
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Release|x86.ActiveCfg = Release|Win32
+		{30EA1C95-49D3-4CFA-902B-3A16B86291D3}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

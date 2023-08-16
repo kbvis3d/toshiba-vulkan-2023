@@ -60,3 +60,5 @@
 /CUDA/toshiba-vulkanImageCUDA/*.user
 /VulkanTutorial/.vs/VulkanTutorial/v17/ipch/AutoPCH/d9471acc7bccb6d3/*.ipch
 *.user
+*.ipch
+*.filters

@@ -748,8 +748,7 @@ class vulkanImageCUDA {
   }
 
   void getKhrExtensionsFn() {
-    fpGetSemaphoreWin32HandleKHR =
-        (PFN_vkGetSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(device, "vkGetSemaphoreWin32HandleKHR");
+    fpGetSemaphoreWin32HandleKHR = (PFN_vkGetSemaphoreWin32HandleKHR)vkGetDeviceProcAddr(device, "vkGetSemaphoreWin32HandleKHR");
     if (fpGetSemaphoreWin32HandleKHR == NULL) {
       throw std::runtime_error(
           "Vulkan: Proc address for \"vkGetSemaphoreWin32HandleKHR\" not "
@@ -1159,8 +1158,7 @@ class vulkanImageCUDA {
     createImage(
         imageWidth, imageHeight, VK_FORMAT_R8G8B8A8_UNORM,
         VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT |
-            VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+        VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
     transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_UINT,
@@ -1256,13 +1254,11 @@ class vulkanImageCUDA {
     endSingleTimeCommands(commandBuffer);
   }
 
-  HANDLE getVkImageMemHandle(
-      VkExternalMemoryHandleTypeFlagsKHR externalMemoryHandleType) {
+  HANDLE getVkImageMemHandle(VkExternalMemoryHandleTypeFlagsKHR externalMemoryHandleType) {
     HANDLE handle;
 
     VkMemoryGetWin32HandleInfoKHR vkMemoryGetWin32HandleInfoKHR = {};
-    vkMemoryGetWin32HandleInfoKHR.sType =
-        VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
+    vkMemoryGetWin32HandleInfoKHR.sType = VK_STRUCTURE_TYPE_MEMORY_GET_WIN32_HANDLE_INFO_KHR;
     vkMemoryGetWin32HandleInfoKHR.pNext = NULL;
     vkMemoryGetWin32HandleInfoKHR.memory = textureImageMemory;
     vkMemoryGetWin32HandleInfoKHR.handleType = (VkExternalMemoryHandleTypeFlagBitsKHR)externalMemoryHandleType;
@@ -1366,6 +1362,7 @@ class vulkanImageCUDA {
 
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(device, image, &memRequirements);
+    totalImageMemSize = memRequirements.size;
 
     WindowsSecurityAttributes winSecurityAttributes;
 
@@ -1377,20 +1374,14 @@ class vulkanImageCUDA {
     vulkanExportMemoryWin32HandleInfoKHR.name = (LPCWSTR)NULL;
     VkExportMemoryAllocateInfoKHR vulkanExportMemoryAllocateInfoKHR = {};
     vulkanExportMemoryAllocateInfoKHR.sType = VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_KHR;
-    vulkanExportMemoryAllocateInfoKHR.pNext = IsWindows8OrGreater() ? &vulkanExportMemoryWin32HandleInfoKHR : NULL;
-    vulkanExportMemoryAllocateInfoKHR.handleTypes = IsWindows8OrGreater()
-            ? VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
-            : VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT;
+    vulkanExportMemoryAllocateInfoKHR.pNext = &vulkanExportMemoryWin32HandleInfoKHR;
+    vulkanExportMemoryAllocateInfoKHR.handleTypes = VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT;
 
     VkMemoryAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.pNext = &vulkanExportMemoryAllocateInfoKHR;
     allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
-
-    VkMemoryRequirements vkMemoryRequirements = {};
-    vkGetImageMemoryRequirements(device, image, &vkMemoryRequirements);
-    totalImageMemSize = vkMemoryRequirements.size;
 
     if (vkAllocateMemory(device, &allocInfo, nullptr, &textureImageMemory) != VK_SUCCESS) {
       throw std::runtime_error("failed to allocate image memory!");
@@ -1402,28 +1393,18 @@ class vulkanImageCUDA {
   void cudaVkImportSemaphore() {
     cudaExternalSemaphoreHandleDesc externalSemaphoreHandleDesc;
     memset(&externalSemaphoreHandleDesc, 0, sizeof(externalSemaphoreHandleDesc));
-    externalSemaphoreHandleDesc.type =
-        IsWindows8OrGreater() ? cudaExternalSemaphoreHandleTypeOpaqueWin32
-                              : cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt;
+    externalSemaphoreHandleDesc.type = cudaExternalSemaphoreHandleTypeOpaqueWin32;
     externalSemaphoreHandleDesc.handle.win32.handle = getVkSemaphoreHandle(
-        IsWindows8OrGreater()
-            ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
-            : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT,
+            VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT,
         cudaUpdateVkSemaphore);
     externalSemaphoreHandleDesc.flags = 0;
 
     checkCudaErrors(cudaImportExternalSemaphore(&cudaExtCudaUpdateVkSemaphore, &externalSemaphoreHandleDesc));
 
-    memset(&externalSemaphoreHandleDesc, 0,
-           sizeof(externalSemaphoreHandleDesc));
-    externalSemaphoreHandleDesc.type =
-        IsWindows8OrGreater() ? cudaExternalSemaphoreHandleTypeOpaqueWin32
-                              : cudaExternalSemaphoreHandleTypeOpaqueWin32Kmt;
-    ;
+    memset(&externalSemaphoreHandleDesc, 0, sizeof(externalSemaphoreHandleDesc));
+    externalSemaphoreHandleDesc.type = cudaExternalSemaphoreHandleTypeOpaqueWin32;
     externalSemaphoreHandleDesc.handle.win32.handle = getVkSemaphoreHandle(
-        IsWindows8OrGreater()
-            ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
-            : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT,
+            VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT,
         vkUpdateCudaSemaphore);
     externalSemaphoreHandleDesc.flags = 0;
     checkCudaErrors(cudaImportExternalSemaphore(&cudaExtVkUpdateCudaSemaphore, &externalSemaphoreHandleDesc));
@@ -1433,13 +1414,8 @@ class vulkanImageCUDA {
   void cudaVkImportImageMem() {
     cudaExternalMemoryHandleDesc cudaExtMemHandleDesc;
     memset(&cudaExtMemHandleDesc, 0, sizeof(cudaExtMemHandleDesc));
-    cudaExtMemHandleDesc.type =
-        IsWindows8OrGreater() ? cudaExternalMemoryHandleTypeOpaqueWin32
-                              : cudaExternalMemoryHandleTypeOpaqueWin32Kmt;
-    cudaExtMemHandleDesc.handle.win32.handle = getVkImageMemHandle(
-        IsWindows8OrGreater()
-            ? VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT
-            : VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT);
+    cudaExtMemHandleDesc.type = cudaExternalMemoryHandleTypeOpaqueWin32;
+    cudaExtMemHandleDesc.handle.win32.handle = getVkImageMemHandle(VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT);
     cudaExtMemHandleDesc.size = totalImageMemSize;
 
     checkCudaErrors(cudaImportExternalMemory(&cudaExtMemImageBuffer, &cudaExtMemHandleDesc));
@@ -1466,10 +1442,8 @@ class vulkanImageCUDA {
         &cudaMipmappedImageArray, cudaExtMemImageBuffer,
         &externalMemoryMipmappedArrayDesc));
 
-    checkCudaErrors(cudaMallocMipmappedArray(&cudaMipmappedImageArrayTemp,
-                                             &formatDesc, extent, mipLevels));
-    checkCudaErrors(cudaMallocMipmappedArray(&cudaMipmappedImageArrayOrig,
-                                             &formatDesc, extent, mipLevels));
+    checkCudaErrors(cudaMallocMipmappedArray(&cudaMipmappedImageArrayTemp, &formatDesc, extent, mipLevels));
+    checkCudaErrors(cudaMallocMipmappedArray(&cudaMipmappedImageArrayOrig, &formatDesc, extent, mipLevels));
 
     for (int mipLevelIdx = 0; mipLevelIdx < mipLevels; mipLevelIdx++) {
       cudaArray_t cudaMipLevelArray, cudaMipLevelArrayTemp, cudaMipLevelArrayOrig;
@@ -1481,8 +1455,7 @@ class vulkanImageCUDA {
 
       uint32_t width = (imageWidth >> mipLevelIdx) ? (imageWidth >> mipLevelIdx) : 1;
       uint32_t height = (imageHeight >> mipLevelIdx) ? (imageHeight >> mipLevelIdx) : 1;
-      checkCudaErrors(cudaMemcpy2DArrayToArray(
-          cudaMipLevelArrayOrig, 0, 0, cudaMipLevelArray, 0, 0,
+      checkCudaErrors(cudaMemcpy2DArrayToArray(cudaMipLevelArrayOrig, 0, 0, cudaMipLevelArray, 0, 0,
           width * sizeof(uchar4), height, cudaMemcpyDeviceToDevice));
 
       memset(&resourceDesc, 0, sizeof(resourceDesc));
@@ -1530,9 +1503,9 @@ class vulkanImageCUDA {
     checkCudaErrors(cudaMemcpy(d_surfaceObjectList, surfaceObjectList.data(),
                                sizeof(cudaSurfaceObject_t) * mipLevels,
                                cudaMemcpyHostToDevice));
-    checkCudaErrors(cudaMemcpy(
-        d_surfaceObjectListTemp, surfaceObjectListTemp.data(),
-        sizeof(cudaSurfaceObject_t) * mipLevels, cudaMemcpyHostToDevice));
+    checkCudaErrors(cudaMemcpy(d_surfaceObjectListTemp, surfaceObjectListTemp.data(),
+                               sizeof(cudaSurfaceObject_t) * mipLevels, 
+                               cudaMemcpyHostToDevice));
 
     printf("CUDA Kernel Vulkan image buffer\n");
   }
@@ -1556,8 +1529,7 @@ class vulkanImageCUDA {
     cudaVkSemaphoreSignal(cudaExtCudaUpdateVkSemaphore);
   }
 
-  void transitionImageLayout(VkImage image, VkFormat format,
-                             VkImageLayout oldLayout, VkImageLayout newLayout) {
+  void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout) {
     VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier = {};
@@ -1622,8 +1594,7 @@ class vulkanImageCUDA {
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
     void* data;
@@ -1648,8 +1619,7 @@ class vulkanImageCUDA {
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                     VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
     void* data;
@@ -1676,8 +1646,7 @@ class vulkanImageCUDA {
 
     for (size_t i = 0; i < swapChainImages.size(); i++) {
       createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                       VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                    uniformBuffers[i], uniformBuffersMemory[i]);
     }
   }
@@ -1685,11 +1654,9 @@ class vulkanImageCUDA {
   void createDescriptorPool() {
     std::array<VkDescriptorPoolSize, 2> poolSizes = {};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount =
-        static_cast<uint32_t>(swapChainImages.size());
+    poolSizes[0].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[1].descriptorCount =
-        static_cast<uint32_t>(swapChainImages.size());
+    poolSizes[1].descriptorCount = static_cast<uint32_t>(swapChainImages.size());
 
     VkDescriptorPoolCreateInfo poolInfo = {};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
@@ -1707,8 +1674,7 @@ class vulkanImageCUDA {
     VkDescriptorSetAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount =
-        static_cast<uint32_t>(swapChainImages.size());
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImages.size());
     allocInfo.pSetLayouts = layouts.data();
 
     descriptorSets.resize(swapChainImages.size());
@@ -1745,9 +1711,7 @@ class vulkanImageCUDA {
       descriptorWrites[1].descriptorCount = 1;
       descriptorWrites[1].pImageInfo = &imageInfo;
 
-      vkUpdateDescriptorSets(device,
-                             static_cast<uint32_t>(descriptorWrites.size()),
-                             descriptorWrites.data(), 0, nullptr);
+      vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
   }
 
@@ -1827,8 +1791,7 @@ class vulkanImageCUDA {
     vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
 
     for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
-      if ((typeFilter & (1 << i)) &&
-          (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+      if ((typeFilter & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
         return i;
       }
     }
@@ -1879,14 +1842,11 @@ class vulkanImageCUDA {
 
       vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-      vkCmdBindDescriptorSets(commandBuffers[i],
-                              VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
+      vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout,
                               0, 1, &descriptorSets[i], 0, nullptr);
 
-      vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()),
-                       1, 0, 0, 0);
-      // vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1,
-      // 0, 0);
+      vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+      // vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
       vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1912,8 +1872,7 @@ class vulkanImageCUDA {
       if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) != VK_SUCCESS ||
           vkCreateSemaphore(device, &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) != VK_SUCCESS ||
           vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS) {
-        throw std::runtime_error(
-            "failed to create synchronization objects for a frame!");
+        throw std::runtime_error("failed to create synchronization objects for a frame!");
       }
     }
   }
@@ -1935,17 +1894,13 @@ class vulkanImageCUDA {
     vulkanExportSemaphoreWin32HandleInfoKHR.name = (LPCWSTR)NULL;
     VkExportSemaphoreCreateInfoKHR vulkanExportSemaphoreCreateInfo = {};
     vulkanExportSemaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_EXPORT_SEMAPHORE_CREATE_INFO_KHR;
-    vulkanExportSemaphoreCreateInfo.pNext = IsWindows8OrGreater() ? &vulkanExportSemaphoreWin32HandleInfoKHR : NULL;
-    vulkanExportSemaphoreCreateInfo.handleTypes =
-        IsWindows8OrGreater()
-            ? VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT
-            : VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT_BIT;
+    vulkanExportSemaphoreCreateInfo.pNext = &vulkanExportSemaphoreWin32HandleInfoKHR;
+    vulkanExportSemaphoreCreateInfo.handleTypes = VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT;
     semaphoreInfo.pNext = &vulkanExportSemaphoreCreateInfo;
 
     if (vkCreateSemaphore(device, &semaphoreInfo, nullptr, &cudaUpdateVkSemaphore) != VK_SUCCESS ||
         vkCreateSemaphore(device, &semaphoreInfo, nullptr, &vkUpdateCudaSemaphore) != VK_SUCCESS) {
-      throw std::runtime_error(
-          "failed to create synchronization objects for a CUDA-Vulkan!");
+      throw std::runtime_error("failed to create synchronization objects for a CUDA-Vulkan!");
     }
   }
 
@@ -2082,9 +2037,7 @@ class vulkanImageCUDA {
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
     VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame], cudaUpdateVkSemaphore};
-    VkPipelineStageFlags waitStages[] = {
-        VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-        VK_PIPELINE_STAGE_ALL_COMMANDS_BIT};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT};
     submitInfo.waitSemaphoreCount = 2;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
@@ -2197,8 +2150,7 @@ class vulkanImageCUDA {
     bool swapChainAdequate = false;
     if (extensionsSupported) {
       SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
-      swapChainAdequate = !swapChainSupport.formats.empty() &&
-                          !swapChainSupport.presentModes.empty();
+      swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
     }
 
     VkPhysicalDeviceFeatures supportedFeatures;

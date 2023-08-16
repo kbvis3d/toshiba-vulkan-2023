@@ -212,8 +212,7 @@ class VulkanCudaSineWave : public VulkanBaseApp {
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_indexBuffer, m_indexMemory);
 
     // Import the height map into cuda and retrieve a device pointer to use
-    importCudaExternalMemory((void **)&m_cudaHeightMap, m_cudaVertMem,
-                             m_heightMemory, nVerts * sizeof(*m_cudaHeightMap),
+    importCudaExternalMemory((void **)&m_cudaHeightMap, m_cudaVertMem, m_heightMemory, nVerts * sizeof(*m_cudaHeightMap),
         VK_EXTERNAL_MEMORY_HANDLE_TYPE_OPAQUE_WIN32_BIT);
     // Set the height map to use in the simulation
     m_sim.initSimulation(m_cudaHeightMap);
